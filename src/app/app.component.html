@@ -1,0 +1,205 @@
+<div class="container-fluid">
+  <div class="m-2">
+    <div class="row">
+      <div
+        class="mx-auto col-md-4"
+        *ngFor="let panels of panelsDetails | slice: 0:3; index as i"
+      >
+        <div
+          (click)="panels['panelStatus'] = true"
+          class="panel-click card m-2 shadow-lg p-3 mb-5 bg-white rounded"
+          style="background-image:url({{panels['weatherIcon']}}) !important;"
+        >
+          <div class="card-body">
+            <div>
+              <h5 class="card-title mb-3">{{ panels['name'] }}</h5>
+              <h6 class="card-subtitle text-nowrap text-muted">
+                Reportd Temp : {{ panels['weather'] }}
+                <span *ngIf="panels['weather']">&#8451;</span>
+              </h6>
+              <div class="d-flex mt-2">
+                <span *ngIf="weatherIcon">
+                  <b class="text-warning"> {{ panels['weatherMain'] }}</b
+                  ><br />
+                  <small class="text-nowrap">{{ panels['wearherDesc'] }}</small>
+                </span>
+              </div>
+            </div>
+            <div
+              class="d-flex m-2"
+              [hidden]=""
+              *ngIf="panels['cityName'] && panels['panelStatus']"
+            >
+              <span class="text-capitalize">{{ panels['cityName'] }}</span>
+              &nbsp; &nbsp;
+              <i
+                class="bi bi-pencil-square"
+                role="button"
+                (click)="panels['cityName'] = ''"
+              ></i>
+            </div>
+            <div
+              class="d-flex"
+              [hidden]=""
+              *ngIf="!panels['cityName'] && panels['panelStatus']"
+            >
+              <input
+                type="text"
+                class="w-100 form-control"
+                placeholder="Enter city"
+                [(ngModel)]="searchInput[panels['index']]"
+              />
+              &nbsp;
+              <button
+                type="button" 
+                (click)="getWeatherUpdate(panels['index'])"
+                class="btn btn-outline-secondary"
+              >
+                <i class="bi bi-search bi-sm"></i>
+              </button>
+            </div>
+            <span
+              *ngIf="panels['errorAlert']"
+              class="text-danger"
+              style="font-weight:bold"
+              >Invalid city</span
+            >
+          </div>
+        </div>
+      </div>
+      <div
+        class="mx-auto col-md-4"
+        *ngFor="let panels of panelsDetails | slice: 3:6; index as i"
+      >
+        <div
+          (click)="panels['panelStatus'] = true"
+          class="panel-click card m-2 shadow-lg p-3 mb-5 bg-white rounded"
+          style="background-image:url({{panels['weatherIcon']}}) !important;"
+        >
+          <div class="card-body">
+            <div>
+              <h5 class="card-title mb-3">{{ panels['name'] }}</h5>
+              <h6 class="card-subtitle text-nowrap text-muted">
+                Reportd Temp : {{ panels['weather'] }}
+                <span *ngIf="panels['weather']">&#8451;</span>
+              </h6>
+              <div class="d-flex mt-2">
+                <span *ngIf="weatherIcon">
+                  <b class="text-warning"> {{ panels['weatherMain'] }}</b
+                  ><br />
+                  <small class="text-nowrap">{{ panels['wearherDesc'] }}</small>
+                </span>
+              </div>
+            </div>
+            <div
+              class="d-flex m-2"
+              [hidden]=""
+              *ngIf="panels['cityName'] && panels['panelStatus']"
+            >
+              <span class="text-capitalize">{{ panels['cityName'] }}</span>
+              &nbsp; &nbsp;
+              <i
+                class="bi bi-pencil-square"
+                role="button"
+                (click)="panels['cityName'] = ''"
+              ></i>
+            </div>
+            <div
+              class="d-flex mt-2"
+              [hidden]=""
+              *ngIf="!panels['cityName'] && panels['panelStatus']"
+            >
+              <input
+                type="text"
+                class="w-100 form-control"
+                placeholder="Enter city"
+                [(ngModel)]="searchInput[panels['index']]"
+              />
+              &nbsp;
+              <button
+                type="button"
+                (click)="getWeatherUpdate(panels['index'])"
+                class="btn btn-outline-secondary"
+              >
+                <i class="bi bi-search bi-sm"></i>
+              </button>
+            </div>
+            <span
+              *ngIf="panels['errorAlert']"
+              class="text-danger"
+              style="font-weight:bold"
+              >Invalid city</span
+            >
+          </div>
+        </div>
+      </div>
+      <div
+        class="mx-auto col-md-4"
+        *ngFor="let panels of panelsDetails | slice: 6:9; index as i"
+      >
+        <div
+          (click)="panels['panelStatus'] = true"
+          class="panel-click card m-2 shadow-lg p-3 mb-5 bg-white rounded"
+          style="background-image:url({{panels['weatherIcon']}}) !important;"
+        >
+          <div class="card-body">
+            <div>
+              <h5 class="card-title mb-3">{{ panels['name'] }}</h5>
+              <h6 class="card-subtitle text-nowrap text-muted">
+                Reportd Temp : {{ panels['weather'] }}
+                <span *ngIf="panels['weather']">&#8451;</span>
+              </h6>
+              <div class="d-flex mt-2">
+                <span *ngIf="weatherIcon">
+                  <b class="text-warning"> {{ panels['weatherMain'] }}</b
+                  ><br />
+                  <small class="text-nowrap">{{ panels['wearherDesc'] }}</small>
+                </span>
+              </div>
+            </div>
+            <div
+              class="d-flex m-2"
+              [hidden]=""
+              *ngIf="panels['cityName'] && panels['panelStatus']"
+            >
+              <span class="text-capitalize">{{ panels['cityName'] }}</span>
+              &nbsp; &nbsp;
+              <i
+                class="bi bi-pencil-square"
+                role="button"
+                (click)="panels['cityName'] = ''"
+              ></i>
+            </div>
+            <div
+              class="d-flex mt-2"
+              [hidden]=""
+              *ngIf="!panels['cityName'] && panels['panelStatus']"
+            >
+              <input
+                type="text"
+                class="w-100 form-control"
+                placeholder="Enter city"
+                [(ngModel)]="searchInput[panels['index']]"
+              />
+              &nbsp;
+              <button
+                type="button" 
+                (click)="getWeatherUpdate(panels['index'])"
+                class="btn btn-outline-secondary"
+              >
+                <i class="bi bi-search bi-sm"></i>
+              </button>
+            </div>
+            <span
+              *ngIf="panels['errorAlert']"
+              class="text-danger"
+              style="font-weight:bold"
+              >Invalid city</span
+            >
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<div align="center" class="text-info"> Last Updated : {{currentTimeInMilliseconds |  date:'medium'}}</div>
