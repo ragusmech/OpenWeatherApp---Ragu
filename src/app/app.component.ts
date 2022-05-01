@@ -122,7 +122,8 @@ export class AppComponent implements OnInit {
   public offlineEvent: Observable<Event>;
   public onlineEvent: Observable<Event>;
   public subscriptions: Subscription[] = [];
-  public interval;
+  public interval : any;
+  public applicationMode : any = "Online";
   ngOnInit() {
     localStorage.removeItem('dataSource');
     this.handleAppConnectivityChanges();
@@ -134,6 +135,7 @@ export class AppComponent implements OnInit {
     this.subscriptions.push(
       this.onlineEvent.subscribe((e) => {
         // handle online mode
+        this.applicationMode = "Online";
         this.interval = setInterval(() => {
           this.currentTimeInMilliseconds = Date.now();
           for (let i = 0; i < this.panelsDetails.length; i++) {
@@ -147,7 +149,9 @@ export class AppComponent implements OnInit {
     this.subscriptions.push(
       this.offlineEvent.subscribe((e) => {
         // handle offline mode
+        this.applicationMode = "Offline";
         this.interval = setInterval(() => {
+          this.currentTimeInMilliseconds = Date.now();
           var retrievedObject = localStorage.getItem('dataSource');
           this.panelsDetails = JSON.parse(retrievedObject);
         }, 30000);
