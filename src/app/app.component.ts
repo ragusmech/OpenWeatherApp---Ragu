@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { Observable, EMPTY } from 'rxjs';
+import { Observable, EMPTY, Subscription, fromEvent } from 'rxjs';
 import { FormControl } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
 import { catchError, debounceTime, switchMap } from 'rxjs/operators';
@@ -128,9 +128,14 @@ export class AppComponent implements OnInit {
     },
   ];
   public currentTimeInMilliseconds = Date.now();
+  public offlineEvent: Observable<Event>;
+  public onlineEvent: Observable<Event>;
+  public subscriptions: Subscription[] = [];
+  public interval;
   ngOnInit() {
     // this.battleInit();
-    setInterval(() => {
+    this.handleAppConnectivityChanges();
+    this.interval = setInterval(() => {
       this.currentTimeInMilliseconds = Date.now();
       for (let i = 0; i < this.panelsDetails.length; i++) {
         this.getWeatherUpdate(this.panelsDetails[i]['index']);
@@ -138,12 +143,30 @@ export class AppComponent implements OnInit {
       }
     }, 30000);
   }
+  private handleAppConnectivityChanges(): void {
+    this.onlineEvent = fromEvent(window, 'online');
+    this.offlineEvent = fromEvent(window, 'offline');
 
-  ngOnDestroy() {
-    // if (this.id) {
-    //   clearInterval(this.id);
-    // }
+    this.subscriptions.push(
+      this.onlineEvent.subscribe((e) => {
+        // handle online mode
+        console.log('Online...');
+      })
+    );
+
+    this.subscriptions.push(
+      this.offlineEvent.subscribe((e) => {
+        // handle offline mode
+        console.log('Offline...');
+      })
+    );
   }
+
+  ngOnDestroy(): void {
+    this.subscriptions.forEach((subscription) => subscription.unsubscribe());
+    clearInterval(this.interval);
+  }
+
   public getWeatherUpdate(index) {
     var city = this.searchInput[index];
     console.log(city, 'hit' + index);
