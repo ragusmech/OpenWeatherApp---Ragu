@@ -26,7 +26,6 @@ export class AppComponent implements OnInit {
       panelStatus: false,
       wearherMain: '',
       wearherDesc: '',
-      searchInput: 'panel_1',
       errorAlert: false,
       weatherIcon: this.weatherIcon,
     },
@@ -38,7 +37,6 @@ export class AppComponent implements OnInit {
       panelStatus: false,
       wearherMain: '',
       wearherDesc: '',
-      searchInput: 'panel_2',
       errorAlert: false,
       weatherIcon: this.weatherIcon,
     },
@@ -50,7 +48,6 @@ export class AppComponent implements OnInit {
       panelStatus: false,
       wearherMain: '',
       wearherDesc: '',
-      searchInput: 'panel_3',
       errorAlert: false,
       weatherIcon: this.weatherIcon,
     },
@@ -62,7 +59,6 @@ export class AppComponent implements OnInit {
       panelStatus: false,
       wearherMain: '',
       wearherDesc: '',
-      searchInput: 'panel_4',
       errorAlert: false,
       weatherIcon: this.weatherIcon,
     },
@@ -74,7 +70,6 @@ export class AppComponent implements OnInit {
       panelStatus: false,
       wearherMain: '',
       wearherDesc: '',
-      searchInput: 'panel_5',
       errorAlert: false,
       weatherIcon: this.weatherIcon,
     },
@@ -86,7 +81,6 @@ export class AppComponent implements OnInit {
       panelStatus: false,
       wearherMain: '',
       wearherDesc: '',
-      searchInput: 'panel_6',
       errorAlert: false,
       weatherIcon: this.weatherIcon,
     },
@@ -98,7 +92,6 @@ export class AppComponent implements OnInit {
       panelStatus: false,
       wearherMain: '',
       wearherDesc: '',
-      searchInput: 'panel_7',
       errorAlert: false,
       weatherIcon: this.weatherIcon,
     },
@@ -110,7 +103,6 @@ export class AppComponent implements OnInit {
       panelStatus: false,
       wearherMain: '',
       wearherDesc: '',
-      searchInput: 'panel_8',
       errorAlert: false,
       weatherIcon: this.weatherIcon,
     },
@@ -122,7 +114,6 @@ export class AppComponent implements OnInit {
       panelStatus: false,
       wearherMain: '',
       wearherDesc: '',
-      searchInput: 'panel_9',
       errorAlert: false,
       weatherIcon: this.weatherIcon,
     },
@@ -133,15 +124,8 @@ export class AppComponent implements OnInit {
   public subscriptions: Subscription[] = [];
   public interval;
   ngOnInit() {
-    // this.battleInit();
+    localStorage.removeItem('dataSource');
     this.handleAppConnectivityChanges();
-    this.interval = setInterval(() => {
-      this.currentTimeInMilliseconds = Date.now();
-      for (let i = 0; i < this.panelsDetails.length; i++) {
-        this.getWeatherUpdate(this.panelsDetails[i]['index']);
-        this.panelsDetails[i]['errorAlert'] = false;
-      }
-    }, 30000);
   }
   private handleAppConnectivityChanges(): void {
     this.onlineEvent = fromEvent(window, 'online');
@@ -150,14 +134,23 @@ export class AppComponent implements OnInit {
     this.subscriptions.push(
       this.onlineEvent.subscribe((e) => {
         // handle online mode
-        console.log('Online...');
+        this.interval = setInterval(() => {
+          this.currentTimeInMilliseconds = Date.now();
+          for (let i = 0; i < this.panelsDetails.length; i++) {
+            this.getWeatherUpdate(this.panelsDetails[i]['index']);
+            this.panelsDetails[i]['errorAlert'] = false;
+          }
+        }, 30000);
       })
     );
 
     this.subscriptions.push(
       this.offlineEvent.subscribe((e) => {
         // handle offline mode
-        console.log('Offline...');
+        this.interval = setInterval(() => {
+          var retrievedObject = localStorage.getItem('dataSource');
+          this.panelsDetails = JSON.parse(retrievedObject);
+        }, 30000);
       })
     );
   }
@@ -169,7 +162,6 @@ export class AppComponent implements OnInit {
 
   public getWeatherUpdate(index) {
     var city = this.searchInput[index];
-    console.log(city, 'hit' + index);
     var oldIndex = index;
     index = index - 1;
     this.panelsDetails[index]['errorAlert'] = false;
@@ -185,6 +177,10 @@ export class AppComponent implements OnInit {
             'http://openweathermap.org/img/wn/' +
             res['weather'][0].icon +
             '@2x.png';
+          localStorage.setItem(
+            'dataSource',
+            JSON.stringify(this.panelsDetails)
+          );
         },
         (err) => {
           this.panelsDetails[index] = {
@@ -194,7 +190,6 @@ export class AppComponent implements OnInit {
             cityName: '',
             wearherMain: '',
             wearherDesc: '',
-            searchInput: 'panel_' + oldIndex,
             panelStatus: true,
             weatherIcon: this.weatherIcon,
           };
@@ -212,7 +207,6 @@ export class AppComponent implements OnInit {
         cityName: '',
         wearherMain: '',
         wearherDesc: '',
-        searchInput: 'panel_' + oldIndex,
         panelStatus: true,
         weatherIcon: this.weatherIcon,
       };
