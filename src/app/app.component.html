@@ -8,7 +8,8 @@
         <div
           (click)="panels['panelStatus'] = true"
           class="panel-click card m-2 shadow-lg p-3 mb-5 bg-white rounded"
-          style="background-image:url({{panels['weatherIcon']}}) !important;"
+          style="background-image:url({{ panels['weatherIcon'] }}) !important;"
+          [class.setBackground]="panels['weatherMain']"
         >
           <div class="card-body">
             <div>
@@ -51,7 +52,7 @@
               />
               &nbsp;
               <button
-                type="button" 
+                type="button"
                 (click)="getWeatherUpdate(panels['index'])"
                 class="btn btn-outline-secondary"
               >
@@ -74,7 +75,8 @@
         <div
           (click)="panels['panelStatus'] = true"
           class="panel-click card m-2 shadow-lg p-3 mb-5 bg-white rounded"
-          style="background-image:url({{panels['weatherIcon']}}) !important;"
+          style="background-image:url({{ panels['weatherIcon'] }}) !important;"
+          [class.setBackground]="panels['weatherMain']"
         >
           <div class="card-body">
             <div>
@@ -140,7 +142,8 @@
         <div
           (click)="panels['panelStatus'] = true"
           class="panel-click card m-2 shadow-lg p-3 mb-5 bg-white rounded"
-          style="background-image:url({{panels['weatherIcon']}}) !important;"
+          style="background-image:url({{ panels['weatherIcon'] }}) !important;"
+          [class.setBackground]="panels['weatherMain']"
         >
           <div class="card-body">
             <div>
@@ -183,7 +186,7 @@
               />
               &nbsp;
               <button
-                type="button" 
+                type="button"
                 (click)="getWeatherUpdate(panels['index'])"
                 class="btn btn-outline-secondary"
               >
@@ -202,5 +205,7 @@
     </div>
   </div>
 </div>
-<div align="center"> Application : {{applicationMode}}</div>
-<div align="center" class="text-info"> Last Updated : {{currentTimeInMilliseconds |  date:'medium'}}</div>
+<div align="center">Application : {{ applicationMode }}</div>
+<div align="center" class="text-info">
+  Last Updated : {{ currentTimeInMilliseconds | date: 'medium' }}
+</div>

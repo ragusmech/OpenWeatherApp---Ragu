@@ -11,3 +11,6 @@ p {
     background-size: contain;
     background-position: center;
 }
+.setBackground{
+  background-color: #e1dddd !important;
+}

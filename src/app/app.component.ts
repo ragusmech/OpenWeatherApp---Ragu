@@ -1,9 +1,16 @@
 import { Component, OnInit } from '@angular/core';
-import { Observable, EMPTY, Subscription, fromEvent } from 'rxjs';
+import {
+  Observable,
+  EMPTY,
+  Subscription,
+  fromEvent,
+  Observer,
+  merge,
+} from 'rxjs';
 import { FormControl } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
 import { catchError, debounceTime, switchMap } from 'rxjs/operators';
-
+import { map } from 'rxjs/operators';
 @Component({
   selector: 'my-app',
   templateUrl: './app.component.html',
@@ -122,45 +129,54 @@ export class AppComponent implements OnInit {
   public offlineEvent: Observable<Event>;
   public onlineEvent: Observable<Event>;
   public subscriptions: Subscription[] = [];
-  public interval : any;
-  public applicationMode : any = "Online";
+  public interval: any;
+  public applicationMode: any = 'Online';
   ngOnInit() {
-    localStorage.removeItem('dataSource');
-    this.handleAppConnectivityChanges();
-  }
-  private handleAppConnectivityChanges(): void {
-    this.onlineEvent = fromEvent(window, 'online');
-    this.offlineEvent = fromEvent(window, 'offline');
-
-    this.subscriptions.push(
-      this.onlineEvent.subscribe((e) => {
-        // handle online mode
-        this.applicationMode = "Online";
-        this.interval = setInterval(() => {
-          this.currentTimeInMilliseconds = Date.now();
-          for (let i = 0; i < this.panelsDetails.length; i++) {
-            this.getWeatherUpdate(this.panelsDetails[i]['index']);
-            this.panelsDetails[i]['errorAlert'] = false;
-          }
-        }, 30000);
-      })
-    );
-
-    this.subscriptions.push(
-      this.offlineEvent.subscribe((e) => {
-        // handle offline mode
-        this.applicationMode = "Offline";
-        this.interval = setInterval(() => {
-          this.currentTimeInMilliseconds = Date.now();
-          var retrievedObject = localStorage.getItem('dataSource');
-          this.panelsDetails = JSON.parse(retrievedObject);
-        }, 30000);
-      })
+    var retrievedObject = localStorage.getItem('dataSource');
+    if (retrievedObject) {
+      this.panelsDetails = JSON.parse(retrievedObject);
+    }
+    this.createOnline$().subscribe((isOnline) =>
+      isOnline ? this.forOnline() : this.forOffline()
     );
   }
 
+  public forOffline() {
+    console.log('Offline');
+    this.applicationMode = 'Offline';
+    this.interval = setInterval(() => {
+      this.currentTimeInMilliseconds = Date.now();
+      var retrievedObject = localStorage.getItem('dataSource');
+      this.panelsDetails = JSON.parse(retrievedObject);
+    }, 30000);
+  }
+  public forOnline() {
+    console.log('Online');
+    var retrievedObject = localStorage.getItem('dataSource');
+    if (retrievedObject) {
+      this.panelsDetails = JSON.parse(retrievedObject);
+    }
+    this.applicationMode = 'Online';
+    this.interval = setInterval(() => {
+      this.currentTimeInMilliseconds = Date.now();
+      for (let i = 0; i < this.panelsDetails.length; i++) {
+        this.searchInput[i + 1] = this.panelsDetails[i]['cityName'];
+        this.getWeatherUpdate(this.panelsDetails[i]['index']);
+        this.panelsDetails[i]['errorAlert'] = false;
+      }
+    }, 30000);
+  }
+  private createOnline$() {
+    return merge(
+      fromEvent(window, 'offline').pipe(map(() => false)),
+      fromEvent(window, 'online').pipe(map(() => true)),
+      new Observable((sub: Observer<boolean>) => {
+        sub.next(navigator.onLine);
+        sub.complete();
+      })
+    );
+  }
   ngOnDestroy(): void {
-    this.subscriptions.forEach((subscription) => subscription.unsubscribe());
     clearInterval(this.interval);
   }
 
@@ -169,55 +185,58 @@ export class AppComponent implements OnInit {
     var oldIndex = index;
     index = index - 1;
     this.panelsDetails[index]['errorAlert'] = false;
-    if (city && city != '') {
-      this.http.get(this.baseWeatherURL + city + this.urlSuffix).subscribe(
-        (res: any) => {
-          this.panelsDetails[index]['weather'] = res['main'].temp;
-          this.panelsDetails[index]['cityName'] = res['name'];
-          this.panelsDetails[index]['weatherMain'] = res['weather'][0].main;
-          this.panelsDetails[index]['wearherDesc'] =
-            res['weather'][0].description;
-          this.panelsDetails[index]['weatherIcon'] =
-            'http://openweathermap.org/img/wn/' +
-            res['weather'][0].icon +
-            '@2x.png';
-          localStorage.setItem(
-            'dataSource',
-            JSON.stringify(this.panelsDetails)
-          );
-        },
-        (err) => {
-          this.panelsDetails[index] = {
-            name: 'Weather Panel ' + oldIndex,
-            index: oldIndex,
-            weather: 0,
-            cityName: '',
-            wearherMain: '',
-            wearherDesc: '',
-            panelStatus: true,
-            weatherIcon: this.weatherIcon,
-          };
-          this.panelsDetails[index]['errorAlert'] = true;
-          setTimeout(() => {
-            this.panelsDetails[index]['errorAlert'] = false;
-          }, 3000);
-        }
-      );
-    } else {
-      this.panelsDetails[index] = {
-        name: 'Weather Panel ' + oldIndex,
-        index: oldIndex,
-        weather: 0,
-        cityName: '',
-        wearherMain: '',
-        wearherDesc: '',
-        panelStatus: true,
-        weatherIcon: this.weatherIcon,
-      };
-      this.panelsDetails[index]['errorAlert'] = true;
-      setTimeout(() => {
-        this.panelsDetails[index]['errorAlert'] = false;
-      }, 3000);
+    if(this.applicationMode == 'Online'){
+      if (city && city != '') {
+        this.http.get(this.baseWeatherURL + city + this.urlSuffix).subscribe(
+          (res: any) => {
+            this.panelsDetails[index]['weather'] = res['main'].temp;
+            this.panelsDetails[index]['cityName'] = res['name'];
+            this.panelsDetails[index]['weatherMain'] = res['weather'][0].main;
+            this.panelsDetails[index]['wearherDesc'] =
+              res['weather'][0].description;
+            this.panelsDetails[index]['weatherIcon'] =
+              'http://openweathermap.org/img/wn/' +
+              res['weather'][0].icon +
+              '@2x.png';
+            localStorage.setItem(
+              'dataSource',
+              JSON.stringify(this.panelsDetails)
+            );
+          },
+          (err) => {
+            this.panelsDetails[index] = {
+              name: 'Weather Panel ' + oldIndex,
+              index: oldIndex,
+              weather: 0,
+              cityName: '',
+              wearherMain: '',
+              wearherDesc: '',
+              panelStatus: true,
+              weatherIcon: this.weatherIcon,
+            };
+            this.panelsDetails[index]['errorAlert'] = true;
+            setTimeout(() => {
+              this.panelsDetails[index]['errorAlert'] = false;
+            }, 3000);
+          }
+        );
+      } else {
+        this.panelsDetails[index] = {
+          name: 'Weather Panel ' + oldIndex,
+          index: oldIndex,
+          weather: 0,
+          cityName: '',
+          wearherMain: '',
+          wearherDesc: '',
+          panelStatus: true,
+          weatherIcon: this.weatherIcon,
+        };
+        this.panelsDetails[index]['errorAlert'] = true;
+        setTimeout(() => {
+          this.panelsDetails[index]['errorAlert'] = false;
+        }, 3000);
+      }
     }
+   
   }
 }
