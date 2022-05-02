@@ -140,7 +140,6 @@ export class AppComponent implements OnInit {
   }
 
   public forOffline() {
-    console.log('Offline');
     this.applicationMode = 'Offline';
     this.interval = setInterval(() => {
       this.currentTimeInMilliseconds = Date.now();
@@ -149,7 +148,6 @@ export class AppComponent implements OnInit {
     }, 30000);
   }
   public forOnline() {
-    console.log('Online');
     var retrievedObject = localStorage.getItem('dataSource');
     if (retrievedObject) {
       this.panelsDetails = JSON.parse(retrievedObject);
