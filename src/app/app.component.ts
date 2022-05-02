@@ -7,9 +7,7 @@ import {
   Observer,
   merge,
 } from 'rxjs';
-import { FormControl } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
-import { catchError, debounceTime, switchMap } from 'rxjs/operators';
 import { map } from 'rxjs/operators';
 @Component({
   selector: 'my-app',
